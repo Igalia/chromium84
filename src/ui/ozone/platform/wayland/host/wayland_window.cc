@@ -299,7 +299,19 @@ WaylandWindow::SetAglReady(void)
   if (!connection_->agl_shell_manager) {
       return;
   }
-  connection_->agl_shell_manager->ready();
+
+  // Delay activation to ensure that all the setup is done
+  // TODO(rzanoni): find a more deterministic way of doing this
+  set_ready_timer_.Start(FROM_HERE,
+                         base::TimeDelta::FromMilliseconds(500),
+                         this,
+                         &WaylandWindow::SetReadyCallback);
+}
+
+
+void WaylandWindow::SetReadyCallback() {
+    connection_->agl_shell_manager->ready();
+    connection_->ScheduleFlush();
 }
 
 bool WaylandWindow::CanDispatchEvent(const PlatformEvent& event) {

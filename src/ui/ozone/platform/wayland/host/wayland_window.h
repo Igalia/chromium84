@@ -13,6 +13,7 @@
 #include "base/containers/flat_set.h"
 #include "base/gtest_prod_util.h"
 #include "base/memory/ref_counted.h"
+#include "base/timer/timer.h"
 #include "ui/events/platform/platform_event_dispatcher.h"
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/native_widget_types.h"
@@ -230,6 +231,8 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
   // Returns a root parent window.
   WaylandWindow* GetRootParentWindow();
 
+  void SetReadyCallback();
+
   // Install a surface listener and start getting wl_output enter/leave events.
   void AddSurfaceListener();
 
@@ -308,6 +311,8 @@ class WaylandWindow : public PlatformWindow, public PlatformEventDispatcher {
 
   // The type of the current WaylandWindow object.
   ui::PlatformWindowType type_ = ui::PlatformWindowType::kWindow;
+
+  base::OneShotTimer set_ready_timer_;
 
   DISALLOW_COPY_AND_ASSIGN(WaylandWindow);
 };
