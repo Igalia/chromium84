@@ -101,4 +101,8 @@ const char kUseSystemClipboard[] = "use-system-clipboard";
 // webapp
 const char kAglAppId[] = "agl-appid";
 
+// Specifies that this application is the only one that binds to agl_shell
+// wayland protocol
+const char kIsAglShell[] = "is-agl-shell";
+
 }  // namespace switches

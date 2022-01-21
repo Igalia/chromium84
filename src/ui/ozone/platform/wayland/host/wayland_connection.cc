@@ -305,7 +305,12 @@ void WaylandConnection::Global(void* data,
 
   // kAglAppId is used only for setting the app_id when launching chrome
   // webapps get their app_id from the config files
-  bool is_webapp = !command_line->HasSwitch(switches::kAglAppId);
+  bool has_app_id = command_line->HasSwitch(switches::kAglAppId);
+
+  // Only one wayland client can bind to agl_shell. This should only be
+  // activated if web applications are implementing the homescreen and
+  // launcher.
+  bool is_agl_shell = command_line->HasSwitch(switches::kIsAglShell);
 
   static const struct agl_shell_desktop_listener agl_shell_desktop_listener = {
     AglDesktopAppIdEvent,
@@ -436,7 +441,7 @@ void WaylandConnection::Global(void* data,
              (strcmp(interface, "wp_presentation") == 0)) {
     connection->presentation_ =
         wl::Bind<wp_presentation>(registry, name, kMaxWpPresentationVersion);
-  } else if (is_webapp && !connection->agl_shell_ && (strcmp(interface, "agl_shell") == 0)) {
+  } else if (is_agl_shell && !connection->agl_shell_ && (strcmp(interface, "agl_shell") == 0)) {
     LOG(INFO) << "Found agl_shell extension";
     connection->agl_shell_ = wl::Bind<agl_shell>(registry, name, 1);
 
@@ -445,7 +450,7 @@ void WaylandConnection::Global(void* data,
         return;
     }
     connection->agl_shell_manager = new AglShell(connection);
-  } else if (!is_webapp && !connection->agl_shell_desktop_ && (strcmp(interface, "agl_shell_desktop") == 0)) {
+  } else if (has_app_id && !connection->agl_shell_desktop_ && (strcmp(interface, "agl_shell_desktop") == 0)) {
     LOG(INFO) << "Found agl_shell_desktop extension";
     connection->agl_shell_desktop_ = wl::Bind<agl_shell_desktop>(registry, name, 1);
 
