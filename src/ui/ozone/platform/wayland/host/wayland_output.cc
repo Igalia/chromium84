@@ -33,8 +33,23 @@ void WaylandOutput::Initialize(Delegate* delegate) {
 
 void WaylandOutput::TriggerDelegateNotification() const {
   DCHECK(!rect_in_physical_pixels_.IsEmpty());
-  delegate_->OnOutputHandleMetrics(output_id_, rect_in_physical_pixels_,
+  gfx::Rect transformed_rect = rect_in_physical_pixels_;
+  transformed_rect.Transpose();
+  delegate_->OnOutputHandleMetrics(output_id_, transformed_rect,
                                    scale_factor_);
+}
+
+// static
+bool WaylandOutput::ShouldSwapAxis(int32_t output_transform) {
+  switch(output_transform) {
+    case WL_OUTPUT_TRANSFORM_90:
+    case WL_OUTPUT_TRANSFORM_270:
+    case WL_OUTPUT_TRANSFORM_FLIPPED_90:
+    case WL_OUTPUT_TRANSFORM_FLIPPED_270:
+      return true;
+    default:
+     return false;
+  }
 }
 
 // static
